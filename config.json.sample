@@ -1,0 +1,9 @@
+{
+  "providers": {
+    "oanda": {
+      "url": "https://api-fxpractice.oanda.com",
+      "api_key": "your Oanda API key",
+      "date_format": "RFC3339"
+    }
+  }
+}
