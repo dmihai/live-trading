@@ -3,6 +3,7 @@
     "oanda": {
       "url": "https://api-fxpractice.oanda.com",
       "api_key": "your Oanda API key",
+      "account_id": "your Oanda account ID",
       "date_format": "RFC3339"
     }
   }
