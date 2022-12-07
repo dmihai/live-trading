@@ -16,11 +16,7 @@ class Trade:
         from_date = now - timedelta(days=45)
 
         data = self.api.get_initial_candles(self.instrument, from_date, self.granularity)
-        index = [
-            item['time']
-            for item in data
-        ]
-        self.df = pd.DataFrame(data, index=index)
+        self.df = self.__get_dataframe(data)
     
     def run(self):
         self.stopEvent = threading.Event()
@@ -36,11 +32,7 @@ class Trade:
         from_date = self.df.tail(1).time[0]
         data = self.api.get_candles(self.instrument, from_date, None, self.granularity)
         
-        index = [
-            item['time']
-            for item in data
-        ]
-        new_df = pd.DataFrame(data, index=index)
+        new_df = self.__get_dataframe(data)
 
         self.df.update(new_df)
         self.df = self.df.combine_first(new_df)
@@ -52,3 +44,11 @@ class Trade:
             nextTime += self.interval
             self.__loop()
     
+
+    def __get_dataframe(self, data):
+        index = [
+            item['timestamp']
+            for item in data
+        ]
+
+        return pd.DataFrame(data, index=index)

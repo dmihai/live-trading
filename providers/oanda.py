@@ -49,12 +49,12 @@ class Oanda:
         resp = self.sess.get(f"{self.url}/v3/instruments/{instrument}/candles", params=params)
         return [
             {
-                'open': float(candle['mid']['o']),
-                'high': float(candle['mid']['h']),
-                'low': float(candle['mid']['l']),
-                'close': float(candle['mid']['c']),
+                'open_price': float(candle['mid']['o']),
+                'high_price': float(candle['mid']['h']),
+                'low_price': float(candle['mid']['l']),
+                'close_price': float(candle['mid']['c']),
                 'volume': candle['volume'],
-                'time': dateutil.parser.isoparse(candle['time'])
+                'timestamp': dateutil.parser.isoparse(candle['time'])
             }
             for candle in resp.json()['candles']
         ]
