@@ -13,13 +13,13 @@ class Oanda:
 
     def get_initial_candles(self, instrument, from_date, granularity='M1'):
         now = datetime.now(timezone.utc)
-        match granularity:
-            case 'D1':
-                delta = timedelta(days=500)
-            case 'H1':
-                delta = timedelta(days=100)
-            case _:
-                delta = timedelta(days=3)
+
+        if granularity == 'D1':
+            delta = timedelta(days=500)
+        elif granularity == 'H1':
+            delta = timedelta(days=100)
+        else:
+            delta = timedelta(days=3)
 
         data = []
         while from_date < now:
