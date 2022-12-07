@@ -27,18 +27,7 @@ class Oanda:
             if to_date > now:
                 to_date = None
 
-            data_raw = self.get_candles(instrument, from_date, to_date, granularity)
-            data.extend([
-                {
-                    'open': float(candle['mid']['o']),
-                    'high': float(candle['mid']['h']),
-                    'low': float(candle['mid']['l']),
-                    'close': float(candle['mid']['c']),
-                    'volume': candle['volume'],
-                    'time': dateutil.parser.isoparse(candle['time'])
-                }
-                for candle in data_raw['candles']
-            ])
+            data.extend(self.get_candles(instrument, from_date, to_date, granularity))
 
             from_date = from_date + delta
         
@@ -58,4 +47,14 @@ class Oanda:
             params['count'] = 5000
         
         resp = self.sess.get(f"{self.url}/v3/instruments/{instrument}/candles", params=params)
-        return resp.json()
+        return [
+            {
+                'open': float(candle['mid']['o']),
+                'high': float(candle['mid']['h']),
+                'low': float(candle['mid']['l']),
+                'close': float(candle['mid']['c']),
+                'volume': candle['volume'],
+                'time': dateutil.parser.isoparse(candle['time'])
+            }
+            for candle in resp.json()['candles']
+        ]
