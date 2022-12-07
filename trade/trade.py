@@ -1,6 +1,7 @@
 from datetime import datetime, timezone, timedelta
 import time
 import threading
+import logging
 import pandas as pd
 
 class Trade:
@@ -30,6 +31,8 @@ class Trade:
         self.stopEvent.set()
     
     def __loop(self):
+        logging.info(f"Start loop for {self.instrument}")
+        start_time = time.time()
         from_date = self.df.tail(1).time[0]
         data = self.api.get_candles(self.instrument, from_date, None, self.granularity)
         
@@ -41,8 +44,7 @@ class Trade:
 
         self.df.update(new_df)
         self.df = self.df.combine_first(new_df)
-        print(self.instrument, "Loop")
-        print(self.df)
+        logging.info(f"Loop finised for {self.instrument} in {round(time.time() - start_time, 2)}s")
     
     def __setInterval(self) :
         nextTime = time.time() + self.interval
