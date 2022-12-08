@@ -3,12 +3,12 @@ from datetime import datetime, timezone, timedelta
 import dateutil.parser
 
 class Oanda:
-    def __init__(self, api_key, url='https://api-fxpractice.oanda.com', date_format='RFC3339'):
+    def __init__(self, api_key, url='https://api-fxpractice.oanda.com'):
         self.url = url
 
         self.sess = requests.Session()
         self.sess.headers.update({'Authorization': f"Bearer {api_key}"})
-        self.sess.headers.update({'Accept-Datetime-Format': date_format})
+        self.sess.headers.update({'Accept-Datetime-Format': 'RFC3339'})
     
 
     def get_initial_candles(self, instrument, from_date, granularity='M1'):
