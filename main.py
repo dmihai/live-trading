@@ -15,6 +15,20 @@ def get_config():
 
     return config
 
+
+def config_logging(config):
+    filename = config['filename'].replace("%(today)s", str(date.today())) if config['output'] == 'file' else None
+    level = logging.INFO
+    if config['level'] == 'debug':
+        level = logging.DEBUG
+    elif config['level'] == 'warning':
+        level = logging.WARNING
+    elif config['level'] == 'error':
+        level = logging.ERROR
+    
+    logging.basicConfig(filename=filename, format="%(asctime)s - %(levelname)s - %(message)s", level=level)
+
+
 def stop_trading(signum, frame):
     global trades, is_running
 
@@ -23,9 +37,9 @@ def stop_trading(signum, frame):
     
     is_running = False
 
-logging.basicConfig(filename=f"log-{date.today()}.log", format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
 
 config = get_config()
+config_logging(config['logging'])
 oanda_config = config['providers']['oanda']
 
 api = Oanda(oanda_config['api_key'], url=oanda_config['url'], date_format=oanda_config['date_format'])

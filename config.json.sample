@@ -6,5 +6,10 @@
       "account_id": "your Oanda account ID",
       "date_format": "RFC3339"
     }
+  },
+  "logging": {
+    "output": "file" --or-- "console",
+    "filename": "log-%(today)s",
+    "level": "info"
   }
 }
