@@ -6,6 +6,7 @@ from datetime import date
 
 from providers.oanda import Oanda
 from trade.trade import Trade
+from trade.strategies.HighFreqReversal import HighFreqReversal
 
 def get_config():
     f = open('config.json')
@@ -28,13 +29,14 @@ config = get_config()
 oanda_config = config['providers']['oanda']
 
 api = Oanda(oanda_config['api_key'], url=oanda_config['url'], date_format=oanda_config['date_format'])
+strategy = HighFreqReversal()
 
 instruments = ['EUR_USD', 'USD_JPY', 'NZD_CAD']
 trades = []
 for instrument in instruments:
     logging.info(f"Initialize {instrument}")
     start_time = time.time()
-    trade = Trade(api, instrument)
+    trade = Trade(instrument, api, strategy)
     trade.init_data()
     logging.info(f"{instrument} init finished in {round(time.time() - start_time, 2)}s, {len(trade.df)} rows retrieved")
     trade.run()
