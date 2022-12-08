@@ -47,7 +47,7 @@ class Trade:
         self.df = self.df.combine_first(new_df)
         self.strategy.load_data(self.df)
         self.strategy.trade()
-        logging.info(f"Loop finised for {self.instrument} in {round(time.time() - start_time, 2)}s")
+        logging.info(f"Loop finished for {self.instrument} in {round(time.time() - start_time, 2)}s")
     
 
     def __setInterval(self) :
