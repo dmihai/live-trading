@@ -6,7 +6,8 @@ from providers.oanda import Oanda
 
 
 class Strategy:
-    def __init__(self, api: Oanda, profit1_keep_ratio, move_stop_to_breakeven, pip_value, signal_expiry, skip_minutes):
+    def __init__(self, instrument, api: Oanda, profit1_keep_ratio, move_stop_to_breakeven, pip_value, signal_expiry, skip_minutes):
+        self._instrument = instrument
         self._api = api
         self._profit1_keep_ratio = profit1_keep_ratio
         self._move_stop_to_breakeven = move_stop_to_breakeven
@@ -23,7 +24,7 @@ class Strategy:
         self._data = data.copy()
     
 
-    def trade(self, instrument):
+    def trade(self):
         pass
     
 
@@ -43,6 +44,6 @@ class Strategy:
         # TODO: compute units to match risk
         units = 10000 if order['entry'] < order['profit1'] else -10000
 
-        self._api.new_stop_order(order['instrument'], units, order['entry'], order['stop'], order['profit1'], order['profit2'])
+        self._api.new_stop_order(self._instrument, units, order['entry'], order['stop'], order['profit1'], order['profit2'])
 
         self._orders.append(order)

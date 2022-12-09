@@ -43,13 +43,13 @@ config_logging(config['logging'])
 oanda_config = config['providers']['oanda']
 
 api = Oanda(oanda_config['api_key'], oanda_config['account_id'], url=oanda_config['url'])
-strategy = HighFreqReversal()
 
 instruments = ['EUR_USD', 'USD_JPY', 'NZD_CAD']
 trades = []
 for instrument in instruments:
     logging.info(f"Initialize {instrument}")
     start_time = time.time()
+    strategy = HighFreqReversal(instrument, api)
     trade = Trade(instrument, api, strategy)
     trade.init_data()
     logging.info(f"{instrument} init finished in {round(time.time() - start_time, 2)}s, {len(trade.df)} rows retrieved")
