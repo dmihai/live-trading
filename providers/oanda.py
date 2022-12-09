@@ -2,9 +2,13 @@ import requests
 from datetime import datetime, timezone, timedelta
 import dateutil.parser
 
+from utils.time import date_to_rfc3339
+
+
 class Oanda:
-    def __init__(self, api_key, url='https://api-fxpractice.oanda.com'):
+    def __init__(self, api_key, account_id, url='https://api-fxpractice.oanda.com'):
         self.url = url
+        self.account_id = account_id
 
         self.sess = requests.Session()
         self.sess.headers.update({'Authorization': f"Bearer {api_key}"})
@@ -38,15 +42,17 @@ class Oanda:
         params = {
             "price": "M",
             "granularity": granularity,
-            "from": from_date.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+            "from": date_to_rfc3339(from_date)
         }
 
         if to_date is not None:
-            params['to'] = to_date.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+            params['to'] = date_to_rfc3339(to_date)
         else:
             params['count'] = 5000
         
         resp = self.sess.get(f"{self.url}/v3/instruments/{instrument}/candles", params=params)
+        resp.raise_for_status()
+
         return [
             {
                 'open_price': float(candle['mid']['o']),
@@ -58,3 +64,35 @@ class Oanda:
             }
             for candle in resp.json()['candles']
         ]
+    
+
+    def new_stop_order(self, instrument, units, entry, stop, profit1, profit2):
+        units1 = round(units / 2)
+        units2 = units - units1
+
+        self._create_order('STOP', instrument, units1, entry, stop, profit1)
+        self._create_order('STOP', instrument, units2, entry, stop, profit2)
+    
+
+    def _create_order(self, type, instrument, units, entry, stop, profit):
+        url = f"{self.url}/v3/accounts/{self.account_id}/orders"
+        body = {
+            'order': {
+                'type': type,
+                'instrument': instrument,
+                'units': str(units),
+                'price': str(entry),
+                'timeInForce': 'GTC',
+                'stopLossOnFill': {
+                    'price': str(stop),
+                    'timeInForce': 'GTC',
+                },
+                'takeProfitOnFill': {
+                    'price': str(profit),
+                    'timeInForce': 'GTC',
+                }
+            }
+        }
+
+        resp = self.sess.post(url, json=body)
+        resp.raise_for_status()

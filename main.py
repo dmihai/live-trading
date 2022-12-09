@@ -42,7 +42,7 @@ config = get_config()
 config_logging(config['logging'])
 oanda_config = config['providers']['oanda']
 
-api = Oanda(oanda_config['api_key'], url=oanda_config['url'])
+api = Oanda(oanda_config['api_key'], oanda_config['account_id'], url=oanda_config['url'])
 strategy = HighFreqReversal()
 
 instruments = ['EUR_USD', 'USD_JPY', 'NZD_CAD']
