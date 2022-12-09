@@ -1,8 +1,9 @@
 from trade.strategy import Strategy
+from providers.oanda import Oanda
 
 
 class HighFreqReversal(Strategy):
-    def __init__(self, profit1_keep_ratio=0.5, move_stop_to_breakeven=False,
+    def __init__(self, api: Oanda, profit1_keep_ratio=0.5, move_stop_to_breakeven=False,
                  candle_length=240,
                  kangaroo_min_pips=20, kangaroo_pin_divisor=3.0, kangaroo_room_left=10, kangaroo_room_divisor=5.0,
                  min_trend_score=-1, max_trend_score=1,
@@ -21,10 +22,10 @@ class HighFreqReversal(Strategy):
 
         self._kangaroo_min_length = self._kangaroo_min_pips * pip_value
 
-        super().__init__(profit1_keep_ratio, move_stop_to_breakeven, pip_value, signal_expiry, skip_minutes)
+        super().__init__(api, profit1_keep_ratio, move_stop_to_breakeven, pip_value, signal_expiry, skip_minutes)
 
 
-    def trade(self):
+    def trade(self, instrument):
         df = self._data
 
         if not(self._is_trade_valid()):
@@ -38,13 +39,13 @@ class HighFreqReversal(Strategy):
         }
             
         candle = self._get_candle(prices, 0)
-        trigger = self._get_trigger(candle)
+        order = self._get_order(candle, instrument)
 
         if self._is_kangaroo(prices, candle):
             trend_score = self._get_trend_score(prices, candle)
 
-            if self._is_trend_score_valid(trigger['signal'], trend_score):
-                self._new_order(trigger)
+            if self._is_trend_score_valid(order['signal'], trend_score):
+                self._new_order(order)
     
 
     def _get_candle(self, prices, index):
@@ -56,7 +57,7 @@ class HighFreqReversal(Strategy):
         }
     
 
-    def _get_trigger(self, candle):
+    def _get_order(self, candle, instrument):
         body_length = (candle['high_price'] - candle['low_price']) / self._kangaroo_pin_divisor
 
         # buy signal
@@ -77,6 +78,7 @@ class HighFreqReversal(Strategy):
             profit2 = profit1 - (self._profit2_risk_ratio * risk)
         
         return {
+            'instrument': instrument,
             'signal': signal,
             'entry': entry,
             'stop': stop,

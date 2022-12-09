@@ -1,11 +1,13 @@
 from datetime import timedelta
-from utils.time import get_current_time
-
 import pandas as pd
+
+from utils.time import get_current_time
+from providers.oanda import Oanda
 
 
 class Strategy:
-    def __init__(self, profit1_keep_ratio, move_stop_to_breakeven, pip_value, signal_expiry, skip_minutes):
+    def __init__(self, api: Oanda, profit1_keep_ratio, move_stop_to_breakeven, pip_value, signal_expiry, skip_minutes):
+        self._api = api
         self._profit1_keep_ratio = profit1_keep_ratio
         self._move_stop_to_breakeven = move_stop_to_breakeven
         self._pip_value = pip_value
@@ -21,7 +23,7 @@ class Strategy:
         self._data = data.copy()
     
 
-    def trade(self):
+    def trade(self, instrument):
         pass
     
 
@@ -37,5 +39,10 @@ class Strategy:
     def _new_order(self, order):
         now = get_current_time()
         self._skip_until = now + timedelta(minutes=self._skip_minutes)
+
+        # TODO: compute units to match risk
+        units = 10000 if order['entry'] < order['profit1'] else -10000
+
+        self._api.new_stop_order(order['instrument'], units, order['entry'], order['stop'], order['profit1'], order['profit2'])
 
         self._orders.append(order)
