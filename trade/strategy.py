@@ -6,18 +6,27 @@ from providers.oanda import Oanda
 
 
 class Strategy:
-    def __init__(self, instrument, api: Oanda, profit1_keep_ratio, move_stop_to_breakeven, pip_value, signal_expiry, skip_minutes):
+    def __init__(self, instrument, api: Oanda):
         self._instrument = instrument
         self._api = api
-        self._profit1_keep_ratio = profit1_keep_ratio
-        self._move_stop_to_breakeven = move_stop_to_breakeven
-        self._pip_value = pip_value
-        self._signal_expiry = signal_expiry
-        self._skip_minutes = skip_minutes
+
+        params = {
+            'profit1_keep_ratio': 0.5,
+            'move_stop_to_breakeven': False,
+            'pip_value': 0.0001,
+            'signal_expiry': 100,
+            'skip_minutes': 240
+        }
+        self.load_params(params)
 
         self._data = pd.DataFrame()
         self._orders = []
         self._skip_until = get_current_time()
+    
+
+    def load_params(self, params):
+        for param, value in params.items():
+            setattr(self, f"_{param}", value)
     
 
     def load_data(self, data: pd.DataFrame):

@@ -3,26 +3,22 @@ from providers.oanda import Oanda
 
 
 class HighFreqReversal(Strategy):
-    def __init__(self, instrument, api: Oanda, profit1_keep_ratio=0.5, move_stop_to_breakeven=False,
-                 candle_length=240,
-                 kangaroo_min_pips=20, kangaroo_pin_divisor=3.0, kangaroo_room_left=10, kangaroo_room_divisor=5.0,
-                 min_trend_score=-1, max_trend_score=1,
-                 profit1_risk_ratio=1, profit2_risk_ratio=1,
-                 pip_value=0.0001, signal_expiry=100, skip_minutes=240):
+    def __init__(self, instrument, api: Oanda):
+        
+        params = {
+            'candle_length': 240,
+            'kangaroo_min_pips': 20,
+            'kangaroo_pin_divisor': 3.0,
+            'kangaroo_room_left': 10,
+            'kangaroo_room_divisor': 5.0,
+            'min_trend_score': -1,
+            'max_trend_score': 1,
+            'profit1_risk_ratio': 1,
+            'profit2_risk_ratio': 1
+        }
+        self.load_params(params)
 
-        self._candle_length = candle_length
-        self._kangaroo_min_pips = kangaroo_min_pips
-        self._kangaroo_pin_divisor = kangaroo_pin_divisor
-        self._kangaroo_room_left = kangaroo_room_left
-        self._kangaroo_room_divisor = kangaroo_room_divisor
-        self._min_trend_score = min_trend_score
-        self._max_trend_score = max_trend_score
-        self._profit1_risk_ratio = profit1_risk_ratio
-        self._profit2_risk_ratio = profit2_risk_ratio
-
-        self._kangaroo_min_length = self._kangaroo_min_pips * pip_value
-
-        super().__init__(instrument, api, profit1_keep_ratio, move_stop_to_breakeven, pip_value, signal_expiry, skip_minutes)
+        super().__init__(instrument, api)
 
 
     def trade(self):
@@ -117,7 +113,8 @@ class HighFreqReversal(Strategy):
         low_price = candle['low_price']
         close_price = candle['close_price']
 
-        if high_price- low_price < self._kangaroo_min_length:
+        kangaroo_min_length = self._kangaroo_min_pips * self._pip_value
+        if high_price- low_price < kangaroo_min_length:
             return False
         
         body_length = (high_price - low_price) / self._kangaroo_pin_divisor
