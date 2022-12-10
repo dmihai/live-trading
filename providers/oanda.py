@@ -15,6 +15,13 @@ class Oanda:
         self.sess.headers.update({'Accept-Datetime-Format': 'RFC3339'})
     
 
+    def get_account(self):
+        resp = self.sess.get(f"{self.url}/v3/accounts/{self.account_id}")
+        resp.raise_for_status()
+
+        return resp.json()['account']
+
+    
     def get_initial_candles(self, instrument, from_date, granularity='M1'):
         now = datetime.now(timezone.utc)
 
