@@ -16,7 +16,7 @@ class Oanda:
     
 
     def get_account(self):
-        resp = self.sess.get(f"{self.url}/v3/accounts/{self.account_id}")
+        resp = self.sess.get(f"{self.url}/v3/accounts/{self.account_id}/summary")
         resp.raise_for_status()
 
         return resp.json()['account']
@@ -72,6 +72,17 @@ class Oanda:
             for candle in resp.json()['candles']
         ]
     
+
+    def get_ask_price(self, instrument):
+        params = {
+            "price": "A",
+            "count": 1
+        }
+        resp = self.sess.get(f"{self.url}/v3/instruments/{instrument}/candles", params=params)
+        resp.raise_for_status()
+
+        return float(resp.json()['candles'][0]['ask']['c'])
+
 
     def new_stop_order(self, instrument, units, entry, stop, profit1, profit2):
         units1 = round(units / 2)

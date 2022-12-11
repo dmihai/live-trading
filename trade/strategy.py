@@ -1,8 +1,10 @@
 from datetime import timedelta
 import pandas as pd
+import logging
 
 from utils.time import get_current_time
 from providers.oanda import Oanda
+from constants import pip_values
 
 
 class Strategy:
@@ -11,13 +13,19 @@ class Strategy:
         self._api = api
 
         params = {
+            'risk_per_trade': 0.01,
             'profit1_keep_ratio': 0.5,
             'move_stop_to_breakeven': False,
-            'pip_value': 0.0001,
             'signal_expiry': 100,
             'skip_minutes': 240
         }
         self.load_params(params)
+
+        if instrument in pip_values:
+            self._pip_value = pip_values[instrument]
+        else:
+            logging.warning(f"Instrument {instrument} not found in constants.py, pip_value defaults to 0.0001")
+            self._pip_value = 0.0001
 
         self._data = pd.DataFrame()
         self._orders = []
@@ -50,9 +58,38 @@ class Strategy:
         now = get_current_time()
         self._skip_until = now + timedelta(minutes=self._skip_minutes)
 
-        # TODO: compute units to match risk
-        units = 10000 if order['entry'] < order['profit1'] else -10000
-
+        units = self.__get_position_size(order['entry'], order['stop'])
         self._api.new_stop_order(self._instrument, units, order['entry'], order['stop'], order['profit1'], order['profit2'])
 
         self._orders.append(order)
+    
+
+    def __get_position_size(self, entry, stop):
+        stop_loss = entry - stop
+
+        account = self._api.get_account()
+        account_balance = float(account['balance'])
+        account_currency = account['currency'].upper()
+
+        base_currency = self._instrument[0:3].upper()
+        counter_currency = self._instrument[4:7].upper()
+
+        risk_conversion = 1
+        if base_currency == account_currency:
+            risk_conversion = entry
+        elif counter_currency == account_currency:
+            risk_conversion = 1
+        else:
+            pair1 = f"{counter_currency}_{account_currency}"
+            pair2 = f"{account_currency}_{counter_currency}"
+            if pair1 in pip_values:
+                risk_conversion = 1 / self._api.get_ask_price(pair1)
+            elif pair2 in pip_values:
+                risk_conversion = self._api.get_ask_price(pair2)
+
+        stop_loss_pips = stop_loss / self._pip_value
+        risk_value = account_balance * self._risk_per_trade * risk_conversion
+
+        risk_value_per_pip = risk_value / stop_loss_pips
+
+        return round(risk_value_per_pip / self._pip_value)
