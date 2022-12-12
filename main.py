@@ -2,14 +2,15 @@ import json
 import signal
 import logging
 import time
+import importlib
 from datetime import date
 
 from providers.oanda import Oanda
 from trade.trade import Trade
-from trade.strategies.HighFreqReversal import HighFreqReversal
 
-def get_config():
-    f = open('config.json')
+
+def get_config(file):
+    f = open(file)
     config = json.load(f)
     f.close()
 
@@ -38,21 +39,33 @@ def stop_trading(signum, frame):
     is_running = False
 
 
-config = get_config()
+config = get_config('config.json')
 config_logging(config['logging'])
 oanda_config = config['providers']['oanda']
 
+trading_config = get_config('trading.json')
+
 api = Oanda(oanda_config['api_key'], oanda_config['account_id'], url=oanda_config['url'])
 
-instruments = ['EUR_USD', 'USD_JPY', 'NZD_CAD']
 trades = []
-for instrument in instruments:
-    logging.info(f"Initialize {instrument}")
+for item in trading_config:
+    if not(item['enabled']):
+        continue
+
+    logging.info(f"Initialize {item['instrument']}")
     start_time = time.time()
-    strategy = HighFreqReversal(instrument, api)
-    trade = Trade(instrument, api, strategy)
+
+    module = importlib.import_module("trade.strategies." + item['strategy'])
+    class_ = getattr(module, item['strategy'])
+
+    strategy = class_(item['instrument'], api)
+    strategy.load_params(item['params'])
+
+    trade = Trade(item['instrument'], api, strategy)
     trade.init_data()
-    logging.info(f"{instrument} init finished in {round(time.time() - start_time, 2)}s, {len(trade.df)} rows retrieved")
+
+    logging.info(f"{item['instrument']} init finished in {round(time.time() - start_time, 2)}s, {len(trade.df)} rows retrieved")
+    
     trade.run()
     trades.append(trade)
 

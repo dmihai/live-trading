@@ -1,0 +1,24 @@
+[
+  {
+    "instrument": "EUR_USD",
+    "strategy": "HighFreqReversal",
+    "enabled": true,
+    "params": {
+      "risk_per_trade": 0.01,
+      "skip_minutes": 240,
+      "candle_length": 240,
+      "kangaroo_min_pips": 20,
+      "kangaroo_pin_divisor": 3.0,
+      "kangaroo_room_left": 10,
+      "kangaroo_room_divisor": 5.0,
+      "min_trend_score": -1,
+      "max_trend_score": 1
+    }
+  },
+  {
+    "instrument": "NZD_CAD",
+    "strategy": "HighFreqReversal",
+    "enabled": true,
+    "params": {}
+  }
+]
