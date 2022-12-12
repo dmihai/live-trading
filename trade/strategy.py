@@ -12,14 +12,11 @@ class Strategy:
         self._instrument = instrument
         self._api = api
 
-        params = {
-            'risk_per_trade': 0.01,
-            'profit1_keep_ratio': 0.5,
-            'move_stop_to_breakeven': False,
-            'signal_expiry': 100,
-            'skip_minutes': 240
-        }
-        self.load_params(params)
+        self._risk_per_trade = 0.01
+        self._profit1_keep_ratio = 0.5
+        self._move_stop_to_breakeven = False
+        self._signal_expiry = 100
+        self._skip_minutes = 240
 
         if instrument in pip_values:
             self._pip_value = pip_values[instrument]

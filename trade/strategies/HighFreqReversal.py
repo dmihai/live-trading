@@ -5,18 +5,15 @@ from providers.oanda import Oanda
 class HighFreqReversal(Strategy):
     def __init__(self, instrument, api: Oanda):
         
-        params = {
-            'candle_length': 240,
-            'kangaroo_min_pips': 20,
-            'kangaroo_pin_divisor': 3.0,
-            'kangaroo_room_left': 10,
-            'kangaroo_room_divisor': 5.0,
-            'min_trend_score': -1,
-            'max_trend_score': 1,
-            'profit1_risk_ratio': 1,
-            'profit2_risk_ratio': 1
-        }
-        self.load_params(params)
+        self._candle_length = 240
+        self._kangaroo_min_pips = 20
+        self._kangaroo_pin_divisor = 3.0
+        self._kangaroo_room_left = 10
+        self._kangaroo_room_divisor = 5.0
+        self._min_trend_score = -1
+        self._max_trend_score = 1
+        self._profit1_risk_ratio = 1
+        self._profit2_risk_ratio = 1
 
         super().__init__(instrument, api)
 
