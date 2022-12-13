@@ -16,7 +16,7 @@ class Oanda(Provider):
     
 
     def get_account(self):
-        resp = self._do_request("GET", f"{self.url}/v3/accounts/{self.account_id}/summary")
+        resp = self._request("GET", f"{self.url}/v3/accounts/{self.account_id}/summary")
 
         return resp['account']
 
@@ -56,7 +56,7 @@ class Oanda(Provider):
         else:
             params['count'] = 5000
 
-        resp = self._do_request("GET", f"{self.url}/v3/instruments/{instrument}/candles", params=params)
+        resp = self._request("GET", f"{self.url}/v3/instruments/{instrument}/candles", params=params)
 
         return [
             {
@@ -76,7 +76,7 @@ class Oanda(Provider):
             "price": "A",
             "count": 1
         }
-        resp = self._do_request("GET", f"{self.url}/v3/instruments/{instrument}/candles", params=params)
+        resp = self._request("GET", f"{self.url}/v3/instruments/{instrument}/candles", params=params)
 
         return float(resp['candles'][0]['ask']['c'])
 
@@ -109,4 +109,4 @@ class Oanda(Provider):
             }
         }
 
-        resp = self._do_request("POST", url, json=body)
+        resp = self._request("POST", url, json=body)

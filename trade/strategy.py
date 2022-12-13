@@ -53,12 +53,17 @@ class Strategy:
 
     def _new_order(self, order):
         now = get_current_time()
-        self._skip_until = now + timedelta(minutes=self._skip_minutes)
 
-        units = self.__get_position_size(order['entry'], order['stop'])
-        self._api.new_stop_order(self._instrument, units, order['entry'], order['stop'], order['profit1'], order['profit2'])
+        try:
+            units = self.__get_position_size(order['entry'], order['stop'])
+            self._api.new_stop_order(self._instrument, units, order['entry'], order['stop'], order['profit1'], order['profit2'])
+        except Exception as e:
+            logging.warning(f"Failed to create new order for instrument {self._instrument}: {e}")
+        else:
+            logging.info(f"Order successfully created for instrument {self._instrument}")
+            self._skip_until = now + timedelta(minutes=self._skip_minutes)
 
-        self._orders.append(order)
+            self._orders.append(order)
     
 
     def __get_position_size(self, entry, stop):

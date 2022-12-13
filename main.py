@@ -62,12 +62,16 @@ for item in trading_config:
     strategy.load_params(item['params'])
 
     trade = Trade(item['instrument'], api, strategy)
-    trade.init_data()
-
-    logging.info(f"{item['instrument']} init finished in {round(time.time() - start_time, 2)}s, {len(trade.df)} rows retrieved")
     
-    trade.run()
-    trades.append(trade)
+    try:
+        trade.init_data()
+    except Exception as e:
+        logging.warning(f"Failed to initialize data for instrument {item['instrument']}")
+    else:
+        logging.info(f"{item['instrument']} init finished in {round(time.time() - start_time, 2)}s, {len(trade.df)} rows retrieved")
+        
+        trade.run()
+        trades.append(trade)
 
 is_running = True
 

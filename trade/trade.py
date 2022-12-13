@@ -38,16 +38,21 @@ class Trade:
     def __loop(self):
         logging.info(f"Start loop for {self.instrument}")
         start_time = time.time()
-        from_date = self.df.tail(1).timestamp[0]
-        data = self.api.get_candles(self.instrument, from_date, None, self.granularity)
-        
-        new_df = self.__get_dataframe(data)
 
-        self.df.update(new_df)
-        self.df = self.df.combine_first(new_df)
-        self.strategy.load_data(self.df)
-        self.strategy.trade()
-        logging.info(f"Loop finished for {self.instrument} in {round(time.time() - start_time, 2)}s")
+        try:
+            from_date = self.df.tail(1).timestamp[0]
+            data = self.api.get_candles(self.instrument, from_date, None, self.granularity)
+            
+            new_df = self.__get_dataframe(data)
+
+            self.df.update(new_df)
+            self.df = self.df.combine_first(new_df)
+            self.strategy.load_data(self.df)
+            self.strategy.trade()
+        except Exception as e:
+            logging.warning(f"Loop failed for {self.instrument} with {e}")
+        else:
+            logging.info(f"Loop finished for {self.instrument} in {round(time.time() - start_time, 2)}s")
     
 
     def __setInterval(self) :
