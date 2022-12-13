@@ -3,11 +3,23 @@ import signal
 import logging
 import time
 import importlib
+import psutil
+import os
+import sys
 from datetime import date
 
 from providers.oanda import Oanda
 from trade.trade import Trade
 from utils.time import get_current_time
+
+
+def is_running(script):
+    for q in psutil.process_iter():
+        if q.name().startswith('python'):
+            if len(q.cmdline()) > 1 and script in q.cmdline()[1] and q.pid != os.getpid():
+                return True
+
+    return False
 
 
 def get_config(file):
@@ -50,14 +62,19 @@ def is_trading_time():
 
 config = get_config('config.json')
 config_logging(config['logging'])
-oanda_config = config['providers']['oanda']
+
+if is_running(sys.argv[0]):
+    logging.info("Script is already running")
+    sys.exit()
 
 if not(is_trading_time()):
     logging.info("Cannot trade outside trading session")
+    sys.exit()
+
+oanda_config = config['providers']['oanda']
+api = Oanda(oanda_config['api_key'], oanda_config['account_id'], url=oanda_config['url'])
 
 trading_config = get_config('trading.json')
-
-api = Oanda(oanda_config['api_key'], oanda_config['account_id'], url=oanda_config['url'])
 
 trades = []
 for item in trading_config:
@@ -91,7 +108,7 @@ signal.signal(signal.SIGINT, stop_trading)
 signal.signal(signal.SIGTERM, stop_trading)
 
 while is_running:
-    time.sleep(1)
+    time.sleep(0.1)
 
     if not(is_trading_time()):
         logging.info('Outside trading session, stopping now')
