@@ -4,11 +4,11 @@ Forex trading robot with configurable strategies.
 
 ## Setup
 
-Make sure config.json and trading.json files are created and their content matcfhes the structure from config.json.sample and trading.json.sample
+Make sure config.json and trading.json files are created and their content matches the structure from config.json.sample and trading.json.sample files.
 
 ## Run
 
-The script is designed to run only within forex trading session (Sun 9pm - Fri 2pm UTC). Trading ends Fri 2pm because we want to minimize the trades opened during weekend.
+The script is designed to run only within the forex trading session (Sun 9pm - Fri 2pm UTC). Trading ends Fri 2pm because we want to minimize the open trades during the weekend.
 
 Only one instance of this script will run at one time. It is safe to run it using crontab:
 
