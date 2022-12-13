@@ -12,4 +12,4 @@ The script is designed to run only within forex trading session (Sun 9pm - Fri 2
 
 Only one instance of this script will run at one time. It is safe to run it using crontab:
 
-    */10 * * * 0-5 python /path/to/live-trading/main.py
+    */10 * * * 0-5 cd /path/to/live-trading; python ./main.py
