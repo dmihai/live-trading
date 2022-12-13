@@ -7,6 +7,7 @@ from datetime import date
 
 from providers.oanda import Oanda
 from trade.trade import Trade
+from utils.time import get_current_time
 
 
 def get_config(file):
@@ -24,7 +25,7 @@ def config_logging(config):
     logging.basicConfig(filename=filename, format="%(asctime)s - %(levelname)s - %(message)s", level=level)
 
 
-def stop_trading(signum, frame):
+def stop_trading(signum=None, frame=None):
     global trades, is_running
 
     for trade in trades:
@@ -33,9 +34,26 @@ def stop_trading(signum, frame):
     is_running = False
 
 
+def is_trading_time():
+    now = get_current_time()
+    weekday = now.weekday()
+
+    if weekday <= 3:  # Mon-Thu
+        return True
+    if weekday == 6 and now.hour >= 21:  # Sun after 21:00
+        return True
+    if weekday == 4 and now.hour < 14:  # Fri before 14:00
+        return True
+    
+    return False
+
+
 config = get_config('config.json')
 config_logging(config['logging'])
 oanda_config = config['providers']['oanda']
+
+if not(is_trading_time()):
+    logging.info("Cannot trade outside trading session")
 
 trading_config = get_config('trading.json')
 
@@ -73,4 +91,8 @@ signal.signal(signal.SIGINT, stop_trading)
 signal.signal(signal.SIGTERM, stop_trading)
 
 while is_running:
-    pass
+    time.sleep(1)
+
+    if not(is_trading_time()):
+        logging.info('Outside trading session, stopping now')
+        stop_trading()
