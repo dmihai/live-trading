@@ -19,13 +19,7 @@ def get_config(file):
 
 def config_logging(config):
     filename = config['filename'].replace("%(today)s", str(date.today())) if config['output'] == 'file' else None
-    level = logging.INFO
-    if config['level'] == 'debug':
-        level = logging.DEBUG
-    elif config['level'] == 'warning':
-        level = logging.WARNING
-    elif config['level'] == 'error':
-        level = logging.ERROR
+    level = getattr(logging, config['level'].upper())
     
     logging.basicConfig(filename=filename, format="%(asctime)s - %(levelname)s - %(message)s", level=level)
 
@@ -62,7 +56,7 @@ for item in trading_config:
     strategy.load_params(item['params'])
 
     trade = Trade(item['instrument'], api, strategy)
-    
+
     try:
         trade.init_data()
     except Exception as e:

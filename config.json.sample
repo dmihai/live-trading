@@ -9,6 +9,6 @@
   "logging": {
     "output": "file" --or-- "console",
     "filename": "log-%(today)s",
-    "level": "info"
+    "level": "INFO"
   }
 }
