@@ -60,15 +60,15 @@ def is_trading_time():
     return False
 
 
+if is_running(sys.argv[0]):
+    print("Script is already running")
+    sys.exit()
+
 config = get_config('config.json')
 config_logging(config['logging'])
 
-if is_running(sys.argv[0]):
-    logging.info("Script is already running")
-    sys.exit()
-
 if not(is_trading_time()):
-    logging.info("Cannot trade outside trading session")
+    logging.info("Cannot trade outside the trading session")
     sys.exit()
 
 oanda_config = config['providers']['oanda']
@@ -111,5 +111,5 @@ while is_running:
     time.sleep(0.1)
 
     if not(is_trading_time()):
-        logging.info('Outside trading session, stopping now')
+        logging.info('Outside the trading session, stopping now')
         stop_trading()
