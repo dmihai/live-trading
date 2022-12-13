@@ -1,25 +1,24 @@
-import requests
 from datetime import datetime, timezone, timedelta
 import dateutil.parser
 
+from providers.provider import Provider
 from utils.time import date_to_rfc3339
 
 
-class Oanda:
+class Oanda(Provider):
     def __init__(self, api_key, account_id, url='https://api-fxpractice.oanda.com'):
-        self.url = url
-        self.account_id = account_id
+        super().__init__(url)
 
-        self.sess = requests.Session()
+        self.account_id = account_id
         self.sess.headers.update({'Authorization': f"Bearer {api_key}"})
         self.sess.headers.update({'Accept-Datetime-Format': 'RFC3339'})
+
     
 
     def get_account(self):
-        resp = self.sess.get(f"{self.url}/v3/accounts/{self.account_id}/summary")
-        resp.raise_for_status()
+        resp = self._do_request("GET", f"{self.url}/v3/accounts/{self.account_id}/summary")
 
-        return resp.json()['account']
+        return resp['account']
 
     
     def get_initial_candles(self, instrument, from_date, granularity='M1'):
@@ -56,9 +55,8 @@ class Oanda:
             params['to'] = date_to_rfc3339(to_date)
         else:
             params['count'] = 5000
-        
-        resp = self.sess.get(f"{self.url}/v3/instruments/{instrument}/candles", params=params)
-        resp.raise_for_status()
+
+        resp = self._do_request("GET", f"{self.url}/v3/instruments/{instrument}/candles", params=params)
 
         return [
             {
@@ -69,7 +67,7 @@ class Oanda:
                 'volume': candle['volume'],
                 'timestamp': dateutil.parser.isoparse(candle['time'])
             }
-            for candle in resp.json()['candles']
+            for candle in resp['candles']
         ]
     
 
@@ -78,10 +76,9 @@ class Oanda:
             "price": "A",
             "count": 1
         }
-        resp = self.sess.get(f"{self.url}/v3/instruments/{instrument}/candles", params=params)
-        resp.raise_for_status()
+        resp = self._do_request("GET", f"{self.url}/v3/instruments/{instrument}/candles", params=params)
 
-        return float(resp.json()['candles'][0]['ask']['c'])
+        return float(resp['candles'][0]['ask']['c'])
 
 
     def new_stop_order(self, instrument, units, entry, stop, profit1, profit2):
@@ -112,5 +109,4 @@ class Oanda:
             }
         }
 
-        resp = self.sess.post(url, json=body)
-        resp.raise_for_status()
+        resp = self._do_request("POST", url, json=body)
