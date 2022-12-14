@@ -1,5 +1,6 @@
 from datetime import datetime, timezone, timedelta
 import dateutil.parser
+import logging
 
 from providers.provider import Provider
 from utils.time import date_to_rfc3339
@@ -85,8 +86,10 @@ class Oanda(Provider):
         units1 = round(units / 2)
         units2 = units - units1
 
-        self._create_order('STOP', instrument, units1, entry, stop, profit1)
-        self._create_order('STOP', instrument, units2, entry, stop, profit2)
+        order1 = self._create_order('STOP', instrument, units1, entry, stop, profit1)
+        order2 = self._create_order('STOP', instrument, units2, entry, stop, profit2)
+
+        return (order1, order2)
     
 
     def _create_order(self, type, instrument, units, entry, stop, profit):
@@ -108,5 +111,6 @@ class Oanda(Provider):
                 }
             }
         }
+        logging.info(f"Sending create order request: {body}")
 
-        resp = self._request("POST", url, json=body)
+        return self._request("POST", url, json=body)
