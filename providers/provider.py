@@ -1,6 +1,7 @@
 import requests
 import logging
 import time
+from urllib.error import HTTPError
 
 
 class Provider:
@@ -11,7 +12,13 @@ class Provider:
 
     def _request(self, verb, url, params={}, json=None):
         resp = self.__do_request(verb, url, params=params, json=json)
-        resp.raise_for_status()
+        
+        try:
+            resp.raise_for_status()
+        except HTTPError:
+            logging.warning(f"Received response with status {resp.status_code} {resp.reason}, content {resp.content}")
+            raise
+
 
         return resp.json()
     
