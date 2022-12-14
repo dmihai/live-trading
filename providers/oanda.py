@@ -80,6 +80,15 @@ class Oanda(Provider):
         resp = self._request("GET", f"{self.url}/v3/instruments/{instrument}/candles", params=params)
 
         return float(resp['candles'][0]['ask']['c'])
+    
+
+    def get_position_for_instrument(self, instrument):
+        resp = self._request("GET", f"{self.url}/v3/accounts/{self.account_id}/positions/{instrument}")
+
+        return {
+            'short': abs(round(float(resp['position']['short']['units']))),
+            'long': abs(round(float(resp['position']['long']['units'])))
+        }
 
 
     def new_stop_order(self, instrument, units, entry, stop, profit1, profit2):

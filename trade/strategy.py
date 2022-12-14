@@ -55,8 +55,12 @@ class Strategy:
         now = get_current_time()
 
         try:
-            units = self.__get_position_size(order['entry'], order['stop'])
-            self._api.new_stop_order(self._instrument, units, order['entry'], order['stop'], order['profit1'], order['profit2'])
+            position = self._api.get_position_for_instrument(self._instrument)
+            if position['short'] == 0 and position['long'] == 0:
+                units = self.__get_position_size(order['entry'], order['stop'])
+                self._api.new_stop_order(self._instrument, units, order['entry'], order['stop'], order['profit1'], order['profit2'])
+            else:
+                logging.info(f"Order not created for instrument {self._instrument} because there are opened positions: {position}")
         except Exception as e:
             order_details = f"instrument: {self._instrument}, units: {units}, entry: {order['entry']}, stop: {order['stop']}, profit1: {order['profit1']}, profit2: {order['profit2']}"
             logging.warning(f"Failed to create new order for instrument {self._instrument}: {e} {order_details}")
