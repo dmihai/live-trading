@@ -113,3 +113,5 @@ while is_running:
     if not(is_trading_time()):
         logging.info('Outside the trading session, stopping now')
         stop_trading()
+    
+logging.info("The script is no longer running")
