@@ -1,7 +1,6 @@
 import requests
 import logging
 import time
-from urllib.error import HTTPError
 
 
 class Provider:
@@ -15,7 +14,7 @@ class Provider:
         
         try:
             resp.raise_for_status()
-        except HTTPError:
+        except Exception:
             logging.warning(f"Received response with status {resp.status_code} {resp.reason}, content {resp.content}")
             raise
 

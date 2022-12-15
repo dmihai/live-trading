@@ -36,7 +36,7 @@ class Trade:
     
 
     def __loop(self):
-        logging.info(f"Start loop for {self.instrument}")
+        logging.debug(f"Start loop for {self.instrument}")
         start_time = time.time()
 
         try:
@@ -52,7 +52,7 @@ class Trade:
         except Exception as e:
             logging.warning(f"Loop failed for {self.instrument} with {e}")
         else:
-            logging.info(f"Loop finished for {self.instrument} in {round(time.time() - start_time, 2)}s")
+            logging.debug(f"Loop finished for {self.instrument} in {round(time.time() - start_time, 2)}s")
     
 
     def __setInterval(self) :
