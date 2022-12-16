@@ -6,6 +6,7 @@ import pandas as pd
 
 from trade.strategy import Strategy
 from providers.oanda import Oanda
+from utils.time import get_time_elapsed
 
 
 class Trade:
@@ -52,7 +53,7 @@ class Trade:
         except Exception as e:
             logging.warning(f"Loop failed for {self.instrument} with {e}")
         else:
-            logging.debug(f"Loop finished for {self.instrument} in {round(time.time() - start_time, 2)}s")
+            logging.debug(f"Loop finished for {self.instrument} in {get_time_elapsed(start_time)}s")
     
 
     def __setInterval(self) :

@@ -10,7 +10,7 @@ from datetime import date
 
 from providers.oanda import Oanda
 from trade.trade import Trade
-from utils.time import get_current_time
+from utils.time import get_current_time, get_time_elapsed
 
 
 def is_running(script):
@@ -97,7 +97,7 @@ for item in trading_config:
     except Exception as e:
         logging.warning(f"Failed to initialize data for instrument {item['instrument']}")
     else:
-        logging.info(f"{item['instrument']} init finished in {round(time.time() - start_time, 2)}s, {len(trade.df)} rows retrieved")
+        logging.info(f"{item['instrument']} init finished in {get_time_elapsed(start_time)}s, {len(trade.df)} rows retrieved")
         
         trade.run()
         trades.append(trade)
