@@ -54,7 +54,6 @@ class HighFreqReversal(Strategy):
         body_length = (candle['high_price'] - candle['low_price']) / self._kangaroo_pin_divisor
 
         # buy signal
-        signal = 1
         entry = candle['high_price']
         stop = candle['low_price']
         risk = candle['high_price'] - candle['low_price']
@@ -63,20 +62,13 @@ class HighFreqReversal(Strategy):
 
         # sell signal
         if candle['open_price'] <= candle['low_price'] + body_length and candle['close_price'] <= candle['low_price'] + body_length:
-            signal = -1
             entry = candle['low_price']
             stop = candle['high_price']
             risk = candle['high_price'] - candle['low_price']
             profit1 = candle['low_price'] - (self._profit1_risk_ratio * risk)
             profit2 = profit1 - (self._profit2_risk_ratio * risk)
         
-        return {
-            'signal': signal,
-            'entry': entry,
-            'stop': stop,
-            'profit1': profit1,
-            'profit2': profit2
-        }
+        return self._calculate_order(entry, stop, profit1, profit2)
     
     
     def _get_trend_score(self, prices, candle):

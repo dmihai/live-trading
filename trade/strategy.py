@@ -24,6 +24,7 @@ class Strategy:
             logging.warning(f"Instrument {instrument} not found in constants.py, pip_value defaults to 0.0001")
             self._pip_value = 0.0001
 
+        self._precision = self.__get_precision()
         self._data = pd.DataFrame()
         self._orders = []
         self._skip_until = get_current_time()
@@ -50,6 +51,16 @@ class Strategy:
         
         return False
     
+
+    def _calculate_order(self, entry, stop, profit1, profit2):
+        return {
+            'signal': 1 if entry > stop else -1,
+            'entry': round(entry, self._precision),
+            'stop': round(stop, self._precision),
+            'profit1': round(profit1, self._precision),
+            'profit2': round(profit2, self._precision)
+        }
+
 
     def _new_order(self, order):
         now = get_current_time()
@@ -100,3 +111,14 @@ class Strategy:
         risk_value_per_pip = risk_value / stop_loss_pips
 
         return round(risk_value_per_pip / self._pip_value)
+    
+
+    def __get_precision(self):
+        n = self._pip_value
+        precision = 0
+        while n < 0.9:
+            precision += 1
+            n *= 10
+
+        return precision + 1
+
