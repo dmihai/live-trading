@@ -16,11 +16,12 @@ class Trade:
         self.strategy = strategy
         self.granularity = 'M1'
         self.interval = 60  # seconds
+        self.history_days = 45  # no of days for historical data
     
 
     def init_data(self):
         now = datetime.now(timezone.utc)
-        from_date = now - timedelta(days=45)
+        from_date = now - timedelta(days=self.history_days)
 
         data = self.api.get_initial_candles(self.instrument, from_date, self.granularity)
         self.df = self.__get_dataframe(data)
