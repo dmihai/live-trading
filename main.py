@@ -71,8 +71,12 @@ if not(is_trading_time()):
     logging.info("Cannot trade outside the trading session")
     sys.exit()
 
-oanda_config = config['providers']['oanda']
-api = Oanda(oanda_config['api_key'], oanda_config['account_id'], url=oanda_config['url'])
+api = None
+if config['provider']['type'] == 'oanda':
+    api = Oanda(**config['provider']['params'])
+else:
+    logging.info("Provider type not supported")
+    sys.exit()
 
 trading_config = get_config('trading.json')
 
