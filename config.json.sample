@@ -1,10 +1,19 @@
 {
   "provider": {
-    "type": "oanda",
+    "type": "oanda" --or-- "xtb",
+    // params for oanda
     "params": {
       "url": "https://api-fxpractice.oanda.com",
       "api_key": "your Oanda API key",
       "account_id": "your Oanda account ID"
+    }
+    // params for xtb
+    "params": {
+      "address": "xapi.xtb.com",
+      "port": 5124,
+      "streaming_port": 5125,
+      "user_id": xtb account id (int),
+      "password": "xtb password"
     }
   },
   "logging": {

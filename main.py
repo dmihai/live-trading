@@ -9,6 +9,7 @@ import sys
 from datetime import date
 
 from providers.oanda import Oanda
+from providers.xtb import XTB
 from trade.trade import Trade
 from utils.time import get_current_time, get_time_elapsed
 
@@ -74,6 +75,8 @@ if not(is_trading_time()):
 api = None
 if config['provider']['type'] == 'oanda':
     api = Oanda(**config['provider']['params'])
+elif config['provider']['type'] == 'xtb':
+    api = XTB(**config['provider']['params'])
 else:
     logging.info("Provider type not supported")
     sys.exit()
