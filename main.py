@@ -102,7 +102,7 @@ for item in trading_config:
     try:
         trade.init_data()
     except Exception as e:
-        logging.warning(f"Failed to initialize data for instrument {item['instrument']}")
+        logging.warning(f"Failed to initialize data for instrument {item['instrument']}: {e}")
     else:
         logging.info(f"{item['instrument']} init finished in {get_time_elapsed(start_time)}s, {len(trade.df)} rows retrieved")
         
