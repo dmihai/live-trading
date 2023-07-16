@@ -78,7 +78,27 @@ class XTB():
     
 
     def get_position_for_instrument(self, instrument):
-        pass
+        resp = self.client.commandExecute('getTrades', {
+            "openedOnly": True,
+        })
+
+        if not resp["status"]:
+            raise Exception(f"Error retrieving trades from xtb: {resp}")
+        
+        position = {
+            'short': 0,
+            'long': 0,
+        }
+
+        for trade in resp["returnData"]:
+            if trade["symbol"] == xtb_get_instrument(instrument):
+                pos = trade["position"]
+                if pos > 0:
+                    position["long"] += pos
+                else:
+                    position["short"] += abs(pos)
+
+        return position
 
 
     def new_stop_order(self, instrument, units, entry, stop, profit1, profit2):
