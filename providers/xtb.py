@@ -25,7 +25,12 @@ class XTB():
     
 
     def get_account(self):
-        pass
+        resp = self.client.commandExecute('getMarginLevel')
+
+        if not resp["status"]:
+            raise Exception(f"Error retrieving margin level from xtb: {resp}")
+
+        return resp["returnData"]
 
     
     def get_initial_candles(self, instrument, from_date, granularity='M1'):
