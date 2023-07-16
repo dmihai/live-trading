@@ -34,7 +34,6 @@ class XTB():
 
     
     def get_initial_candles(self, instrument, from_date, granularity='M1'):
-        instrument = xtb_get_instrument(instrument)
         now = datetime.now(timezone.utc)
         candles = self.get_candles(instrument, from_date, now, granularity)
 
@@ -42,13 +41,11 @@ class XTB():
     
 
     def get_candles(self, instrument, from_date, to_date, granularity='M1'):
-        instrument = xtb_get_instrument(instrument)
-
         resp = self.client.commandExecute('getChartRangeRequest', {"info": {
             "start": time.mktime(from_date.timetuple()) * 1000,
             "end": time.mktime(to_date.timetuple()) * 1000,
             "period": period_to_mins[granularity],
-            "symbol": instrument,
+            "symbol": xtb_get_instrument(instrument),
         }})
 
         if not resp["status"]:
@@ -70,7 +67,14 @@ class XTB():
 
 
     def get_ask_price(self, instrument):
-        pass
+        resp = self.client.commandExecute('getSymbol', {
+            "symbol": xtb_get_instrument(instrument),
+        })
+
+        if not resp["status"]:
+            raise Exception(f"Error retrieving symbol from xtb: {resp}")
+
+        return resp["returnData"]["ask"]
     
 
     def get_position_for_instrument(self, instrument):
