@@ -72,7 +72,7 @@ class JsonSocket(object):
                     break
             except ValueError as e:
                 continue
-        logging.info('Received: ' + str(resp))
+        #logging.info('Received: ' + str(resp))
         return resp
 
     def _readObj(self):
