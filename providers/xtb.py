@@ -1,7 +1,7 @@
 import logging
 import time
 import pytz
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from providers.xtbAPIConnector import APIClient, APIStreamClient, loginCommand
 from constants import period_to_mins
@@ -102,4 +102,37 @@ class XTB():
 
 
     def new_stop_order(self, instrument, units, entry, stop, profit1, profit2):
-        pass
+        units1 = round(units / 2)
+        units2 = units - units1
+
+        type = 4  # BUY_STOP
+        if entry > profit1:
+            type = 5  # SELL_STOP
+
+        order1 = self._create_order(type, instrument, units1, entry, stop, profit1)
+        order2 = self._create_order(type, instrument, units2, entry, stop, profit2)
+
+        return (order1, order2)
+    
+
+    def _create_order(self, type, instrument, units, entry, stop, profit):
+        now = datetime.now(timezone.utc)
+        expiration = now + timedelta(days=30)  # expiration hard coded to 30 days
+
+        resp = self.client.commandExecute('tradeTransaction', {"tradeTransInfo": {
+            "cmd": type,
+            "expiration": time.mktime(expiration.timetuple()) * 1000,
+            "offset": 0,
+            "order": 0,
+            "price": entry,
+            "sl": stop,
+            "symbol": xtb_get_instrument(instrument),
+            "tp": profit,
+            "type": 0,  # OPEN
+            "volume": units,
+        }})
+
+        if not resp["status"]:
+            raise Exception(f"Error creating order on xtb: {resp}")
+
+        return resp["returnData"]
