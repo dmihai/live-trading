@@ -21,7 +21,7 @@ class XTB():
             return
 
         self.ssid = loginResponse['streamSessionId']
-        self.sclient = APIStreamClient(ssId=self.ssid, address=address, port=streaming_port)
+        # self.sclient = APIStreamClient(ssId=self.ssid, address=address, port=streaming_port)
     
 
     def get_account(self):
@@ -41,12 +41,18 @@ class XTB():
     
 
     def get_candles(self, instrument, from_date, to_date, granularity='M1'):
-        resp = self.client.commandExecute('getChartRangeRequest', {"info": {
+        params = {
             "start": time.mktime(from_date.timetuple()) * 1000,
-            "end": time.mktime(to_date.timetuple()) * 1000,
             "period": period_to_mins[granularity],
             "symbol": xtb_get_instrument(instrument),
-        }})
+        }
+
+        command = "getChartLastRequest"
+        if to_date is not None:
+            params['end'] = time.mktime(to_date.timetuple()) * 1000
+            command = "getChartRangeRequest"
+        
+        resp = self.client.commandExecute(command, {"info": params})
 
         if not resp["status"]:
             raise Exception(f"Error retrieving candles from xtb: {resp}")
