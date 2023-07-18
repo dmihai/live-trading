@@ -13,19 +13,29 @@ def xtb_get_instrument(instrument):
 
 class XTB():
     def __init__(self, user_id, password, address='xapi.xtb.com', port=5124, streaming_port=5125):
-        self.client = APIClient(address=address, port=port)
-        loginResponse = self.client.execute(loginCommand(userId=user_id, password=password))
+        self._user_id = user_id
+        self._password = password
+        self._address = address
+        self._port = port
+        self._streaming_port = streaming_port
+
+        self.connect()
+    
+
+    def connect(self):
+        self._client = APIClient(address=self._address, port=self._port)
+        loginResponse = self._client.execute(loginCommand(userId=self._user_id, password=self._password))
 
         if(loginResponse['status'] == False):
             logging.error('Login failed. Error code: {0}'.format(loginResponse['errorCode']))
             return
 
-        self.ssid = loginResponse['streamSessionId']
+        self._ssid = loginResponse['streamSessionId']
         # self.sclient = APIStreamClient(ssId=self.ssid, address=address, port=streaming_port)
-    
 
+    
     def get_account(self):
-        resp = self.client.commandExecute('getMarginLevel')
+        resp = self._client.commandExecute('getMarginLevel')
 
         if not resp["status"]:
             raise Exception(f"Error retrieving margin level from xtb: {resp}")
@@ -52,7 +62,7 @@ class XTB():
             params['end'] = time.mktime(to_date.timetuple()) * 1000
             command = "getChartRangeRequest"
         
-        resp = self.client.commandExecute(command, {"info": params})
+        resp = self._client.commandExecute(command, {"info": params})
 
         if not resp["status"]:
             raise Exception(f"Error retrieving candles from xtb: {resp}")
@@ -73,7 +83,7 @@ class XTB():
 
 
     def get_ask_price(self, instrument):
-        resp = self.client.commandExecute('getSymbol', {
+        resp = self._client.commandExecute('getSymbol', {
             "symbol": xtb_get_instrument(instrument),
         })
 
@@ -84,7 +94,7 @@ class XTB():
     
 
     def get_position_for_instrument(self, instrument):
-        resp = self.client.commandExecute('getTrades', {
+        resp = self._client.commandExecute('getTrades', {
             "openedOnly": True,
         })
 
@@ -125,7 +135,7 @@ class XTB():
         now = datetime.now(timezone.utc)
         expiration = now + timedelta(days=30)  # expiration hard coded to 30 days
 
-        resp = self.client.commandExecute('tradeTransaction', {"tradeTransInfo": {
+        resp = self._client.commandExecute('tradeTransaction', {"tradeTransInfo": {
             "cmd": type,
             "expiration": time.mktime(expiration.timetuple()) * 1000,
             "offset": 0,
