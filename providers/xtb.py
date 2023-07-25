@@ -22,7 +22,7 @@ class XTB():
     
 
     def connect(self):
-        self._client = APIClient(address=self._address, port=self._port)
+        self._client = APIClient(address=self._address, port=self._port, encrypt=True)
         loginResponse = self._client.execute(loginCommand(userId=self._user_id, password=self._password))
 
         if(loginResponse['status'] == False):
