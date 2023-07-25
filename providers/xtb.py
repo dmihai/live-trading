@@ -1,9 +1,8 @@
 import logging
 import time
-import pytz
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 
-from providers.xtbAPIConnector import APIClient, APIStreamClient, loginCommand
+from providers.xtbAPIConnector import APIClient, loginCommand
 from constants import period_to_mins
 
 
@@ -44,7 +43,7 @@ class XTB():
 
     
     def get_initial_candles(self, instrument, from_date, granularity='M1'):
-        now = datetime.now(timezone.utc)
+        now = datetime.now()
         candles = self.get_candles(instrument, from_date, now, granularity)
 
         return candles
@@ -76,7 +75,7 @@ class XTB():
                 'low_price': float((candle['open'] + candle['low']) / factor),
                 'close_price': float((candle['open'] + candle['close']) / factor),
                 'volume': candle['vol'],
-                'timestamp': datetime.fromtimestamp(candle['ctm'] / 1000, tz=pytz.timezone('CET')),
+                'timestamp': datetime.fromtimestamp(candle['ctm'] / 1000),
             }
             for candle in resp["returnData"]["rateInfos"]
         ]
@@ -132,7 +131,7 @@ class XTB():
     
 
     def _create_order(self, type, instrument, units, entry, stop, profit):
-        now = datetime.now(timezone.utc)
+        now = datetime.now()
         expiration = now + timedelta(days=30)  # expiration hard coded to 30 days
 
         resp = self._client.commandExecute('tradeTransaction', {"tradeTransInfo": {
