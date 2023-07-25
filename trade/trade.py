@@ -5,13 +5,11 @@ import logging
 import pandas as pd
 
 from trade.strategy import Strategy
-from providers.oanda import Oanda
-from providers.xtb import XTB
 from utils.time import get_time_elapsed
 
 
 class Trade:
-    def __init__(self, instrument, api: Oanda | XTB, strategy: Strategy, history_days=30):
+    def __init__(self, instrument, api, strategy: Strategy, history_days=30):
         self.instrument = instrument
         self.api = api
         self.strategy = strategy
