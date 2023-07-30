@@ -133,6 +133,7 @@ class XTB():
     def _create_order(self, type, instrument, units, entry, stop, profit):
         now = datetime.now()
         expiration = now + timedelta(days=30)  # expiration hard coded to 30 days
+        volume = round(abs(units) / 100000, 2)
 
         resp = self._client.commandExecute('tradeTransaction', {"tradeTransInfo": {
             "cmd": type,
@@ -144,7 +145,7 @@ class XTB():
             "symbol": xtb_get_instrument(instrument),
             "tp": profit,
             "type": 0,  # OPEN
-            "volume": units,
+            "volume": volume,
         }})
 
         if not resp["status"]:
